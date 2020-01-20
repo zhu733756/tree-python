@@ -55,7 +55,7 @@ class Trie(object):
             else:
                 p = p.children[nodes[i]]
 
-    def category(self, root: TrieNode, pattern: str, res: list) -> str:
+    def category(self, root: TrieNode, pattern: str, res: list):
         if not root.children:
             if pattern not in res:
                 res.append(pattern)
