@@ -12,8 +12,9 @@ class TrieNode(object):
 
 class Trie(object):
 
-    def __init__(self, domains: str):
+    def __init__(self, domains: str,keep=False):
         self.domains = domains if not domains.endswith("/") else domains
+        self.keep = keep
         self.root = TrieNode(self.domains)
 
     def _pre_nodes(self, s: str) -> list:
@@ -55,23 +56,30 @@ class Trie(object):
             else:
                 p = p.children[nodes[i]]
 
-    def category(self, root: TrieNode, pattern: str, res: list):
+    def category(self, root: TrieNode, pattern: str, res: defaultdict):
         if not root.children:
-            if pattern not in res:
-                res.append(pattern)
+            res[pattern]+=1
+            return
         children = root.children
         pattern += "/" + self._common_regex(list(children.keys()))
         for c in children:
             self.category(root=children[c], pattern=pattern, res=res)
 
     def extract(self):
-        res = []
-        self.category(self.root, pattern=self.root.val, res=res)
+        res = defaultdict(int)
+        if self.keep:
+            # keep first node
+            for c in self.root.children:
+                self.category(self.root.children[c],pattern=self.root.val+"/"+c,res=res)
+        else:
+            self.category(self.root, pattern=self.root.val, res=res)
         return res
+
+    def search
 
 
 if __name__ == '__main__':
-    trie = Trie("http://www.bjmy.gov.cn")
+    trie = Trie("http://www.bjmy.gov.cn",keep=True)
     trie.add('http://www.bjmy.gov.cn/col/col129/index.html')
     trie.add('http://www.bjmy.gov.cn/col/col3334/index.html')
     trie.add('http://www.bjmy.gov.cn/art/2020/1/2/art_2052_6.html')

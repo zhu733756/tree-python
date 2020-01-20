@@ -10,7 +10,7 @@ print(trie.extract())
 
 ## **results**:
 ```
-['http://www.bjmy.gov.cn//col/col\\d\\+/index\\.html']
+['http://www.bjmy.gov.cn/col/col\\d\\+/index\\.html']
 ```
 
 ## **example 2**
@@ -25,6 +25,6 @@ print(trie.extract())
 
 ## **results**:
 ```
-['http://www.bjmy.gov.cn//\\[a-zA-Z\\]\\+/col\\d\\+/index\\.html', 'http://www.bjmy.gov.cn//\\[a-zA-Z\\]\\+/\\d\\+/\\d\\+/\\d\\+/art_\\d\\+_\\d\\+\\.html']
+['http://www.bjmy.gov.cn/\\[a-zA-Z\\]\\+/col\\d\\+/index\\.html', 'http://www.bjmy.gov.cn/\\[a-zA-Z\\]\\+/\\d\\+/\\d\\+/\\d\\+/art_\\d\\+_\\d\\+\\.html']
 ```
 
