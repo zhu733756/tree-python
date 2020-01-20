@@ -24,7 +24,7 @@ class Trie(object):
         nodes = nodes.replace(".", "\.").replace("?", "\?")
         if pattern == "w":
             cRegex = ".".join([re.sub("([a-zA-Z]+)", "\\\[a-zA-Z\\\]\\\+", node)
-                                   if not re.search("s?html?", node) else node for node in nodes.split(".")])
+                               if not re.search("s?html?", node) else node for node in nodes.split(".")])
         else:
             cRegex = nodes
         return re.sub("\d+", "\\\d\\\+", cRegex)
@@ -37,9 +37,9 @@ class Trie(object):
         pd = self._current_regex_(c, pattern="d")
         pw = self._current_regex_(c, pattern="w")
         for i in keys:
-            if re.search(pd, i):
+            if re.search(pd, i) or pd == i:
                 counter[pd] += 1
-            if re.search(pw, i):
+            if re.search(pw.replace("\\", ""), i):
                 counter[pw] += 1
         return pd if counter[pd] == counter[pw] else pw
 
@@ -71,7 +71,7 @@ class Trie(object):
 
 
 if __name__ == '__main__':
-    trie = Trie("http://www.bjmy.gov.cn/")
+    trie = Trie("http://www.bjmy.gov.cn")
     trie.add('http://www.bjmy.gov.cn/col/col129/index.html')
     trie.add('http://www.bjmy.gov.cn/col/col3334/index.html')
     trie.add('http://www.bjmy.gov.cn/art/2020/1/2/art_2052_6.html')
