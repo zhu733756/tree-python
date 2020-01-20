@@ -13,12 +13,12 @@ class TrieNode(object):
 class Trie(object):
 
     def __init__(self, domains: str):
-        self.domains = domains
+        self.domains = domains if not domains.endswith("/") else domains
         self.root = TrieNode(self.domains)
 
     def _pre_nodes(self, s: str) -> list:
         '''分割'''
-        return s.replace(self.domains, "").split("/")
+        return s.replace(self.domains+"/", "").split("/")
 
     def _current_regex_(self, nodes: str, pattern="d") -> str:
         nodes = nodes.replace(".", "\.").replace("?", "\?")
