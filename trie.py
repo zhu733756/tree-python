@@ -35,13 +35,13 @@ class Trie(object):
             return [n for n in s.split("/") if n]
 
     def _current_regex_(self, nodes: str, pattern="d") -> str:
-        nodes = nodes.replace(".", "\.").replace("?", "\?")
+        nodes = nodes.replace(".", ".").replace("?", "?")
         if pattern == "w":
-            cRegex = ".".join([re.sub("([a-zA-Z]+)", "\\\[a-zA-Z\\\]\\\+", node)
+            cRegex = ".".join([re.sub("([a-zA-Z]+)", "[a-zA-Z]+", node)
                                if not re.search("s?html?", node) else node for node in nodes.split(".")])
         else:
             cRegex = nodes
-        return re.sub("\d+", "\\\d\\\+", cRegex)
+        return re.sub("\d+", "\\\d+", cRegex)
 
     def _common_regex(self, keys: list) -> str:
         if len(keys) == 0:
