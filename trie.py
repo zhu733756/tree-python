@@ -7,6 +7,8 @@ date_format = [
     "(\d{4}[-|/|.]\d{1,2}[-|/|.]\d{1,2})",
 ]
 
+url_patterns = ["\+", "\?", "#", "&", "=", "_"]
+
 
 class TrieNode(object):
 
@@ -35,13 +37,27 @@ class Trie(object):
             return [n for n in s.split("/") if n]
 
     def _current_regex_(self, nodes: str, pattern="d") -> str:
-        nodes = nodes.replace(".", ".").replace("?", "?")
-        if pattern == "w":
-            cRegex = ".".join([re.sub("([a-zA-Z]+)", "[a-zA-Z]+", node)
-                               if not re.search("s?html?", node) else node for node in nodes.split(".")])
-        else:
-            cRegex = nodes
-        return re.sub("\d+", "\\\d+", cRegex)
+        nodes = nodes.replace(".", "\.").replace("?", "\?")
+
+        include_patterns = ""
+        for p in url_patterns:
+            if re.search(p, nodes):
+                include_patterns += p
+
+        node_list = []
+        for node in nodes.split("."):
+            cRegex = node
+            if not re.search("s?html?", node):
+                if pattern == "w":
+                    cRegex = re.sub("([a-zA-Z]+)", "[a-zA-Z]+", cRegex)
+                cRegex = re.sub("\d+", "\\\d+", cRegex)
+                if include_patterns:
+                    x = "".join(cRegex.split(include_patterns)).replace(
+                        "+", "").replace("[", "").replace("]", "")
+                    cRegex = f"[{x}{include_patterns}]+"
+            node_list.append(cRegex)
+        new_nodes = ".".join(node_list) 
+        return new_nodes
 
     def _common_regex(self, keys: list) -> str:
         if len(keys) == 0:
@@ -55,14 +71,14 @@ class Trie(object):
         for i in keys:
             if re.search(pd, i) or pd == i:
                 counter[pd] += 1
-            if re.search(pw.replace("\\", ""), i):
+            if re.search(pw, i):
                 counter[pw] += 1
-        return pd if counter[pd] == counter[pw] else pw
+        return pd if counter[pd] >= counter[pw] else pw
 
     def add(self, s: str):
         """Add a string to this trie."""
         p = self.root
-        nodes = self._pre_nodes(s)
+        nodes = [n for n in self._pre_nodes(s) if n]
         for i in range(len(nodes)):
             if nodes[i] not in p.children:
                 new_node = TrieNode(nodes[i])
@@ -84,14 +100,15 @@ class Trie(object):
                 nan_file_keys.append(key)
             else:
                 file_keys.append(key)
-        
+
         if nan_file_keys:
-            nan_file_pattern = pattern + "/" + self._common_regex(nan_file_keys)
+            nan_file_pattern = pattern + "/" + \
+                self._common_regex(nan_file_keys)
             for c in nan_file_keys:
                 self.category(root=children[c],
                               pattern=nan_file_pattern, res=res)
         if file_keys:
-            file_pattern = pattern + "/" +  self._common_regex(file_keys)
+            file_pattern = pattern + "/" + self._common_regex(file_keys)
             for c in file_keys:
                 res[file_pattern] += 1
 
@@ -104,7 +121,8 @@ class Trie(object):
         if self.keep:
             # keep first node
             for c in self.root.children:
-                self.category(self.root.children[c], pattern=self.root.val + "/" + c, res=res)
+                self.category(self.root.children[
+                              c], pattern=self.root.val + "/" + c, res=res)
         else:
             self.category(self.root, pattern=self.root.val, res=res)
         return sorted(res.items(), key=lambda x: x[1], reverse=True)[:nums]
@@ -112,13 +130,14 @@ class Trie(object):
     def search(self, s) -> bool:
         if not s:
             return False
-        nodes = self._pre_nodes(s)
+        nodes = [n for n in self._pre_nodes(s) if n]
         p = self.root.children
         for node in nodes:
             if node not in p:
                 return False
             p = p[node].children
         return True
+
 
 def from_csv(path, encoding="utf-8"):
     import pandas as pd
